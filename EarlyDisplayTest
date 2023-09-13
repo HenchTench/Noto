@@ -1,0 +1,29 @@
+private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            Button newButton = new Button();
+            newButton.Text = txtName.Text;
+            newButton.Size = new Size(75, 23);
+            newButton.Location = GetNextButtonLocation();
+            Controls.Add(newButton);
+
+            DrawLine(btnCore.Location.X + btnCore.Width / 2, btnCore.Location.Y + btnCore.Height / 2,
+                newButton.Location.X + newButton.Width / 2, newButton.Location.Y + newButton.Height / 2);
+        }
+        private Point GetNextButtonLocation()
+        {
+            int radius = 100;
+            int centerX = btnCore.Location.X + btnCore.Width / 2;
+            int centerY = btnCore.Location.Y + btnCore.Height / 2;
+            int angle = Controls.OfType<Button>().Count() * 360 / (Controls.OfType<Button>().Count() + 1);
+            double radian = angle * Math.PI / 180;
+            int x = (int)(centerX + radius * Math.Cos(radian)) - 37;
+            int y = (int)(centerY + radius * Math.Sin(radian)) - 12;
+            return new Point(x, y);
+        }
+        private void DrawLine(int x1, int y1, int x2, int y2)
+        {
+            Graphics g = CreateGraphics();
+            Pen pen = new Pen(Color.Black);
+            g.DrawLine(pen, x1, y1, x2, y2);
+            g.Dispose();
+        }
