@@ -1,27 +1,50 @@
 private void btnGenerate_Click(object sender, EventArgs e)
         {
-            Button newButton = new Button(); ///Create the new button and assigns it to a variable called newButton
-            newButton.Text = txtName.Text; ///Give it the text of the name but not a name, it will just be btn4 or something in the background. Not ideal.
-            newButton.Size = new Size(75, 23);
-            newButton.Location = GetNextButtonLocation();
-            Controls.Add(newButton); ///This actually puts it on the form, more specifically it adds it to something called the Controls collection.
-
-            DrawLine(btnCore.Location.X + btnCore.Width / 2, btnCore.Location.Y + btnCore.Height / 2,
-                newButton.Location.X + newButton.Width / 2, newButton.Location.Y + newButton.Height / 2);
+            string buttonName = txtName.Text;
+            rtbButtons.AppendText(buttonName + Environment.NewLine);
+            RefreshButtons();
         }
-        private Point GetNextButtonLocation() ///It would take me a long time to understand why this isn't working properly, as I don't understand how it works.
-            ///It's  meant to generate evenly spaced buttons around btnCore but the gaps between them get smaller each time.
-       
+        private void RefreshButtons()
+        {
+            foreach (Control control in Controls)
+            {
+                if (control is Button && control.Name != "btnCore") ///This is deleting btnGenerate, try && control.Name != "btnGenerate" later
+                {
+                    Controls.Remove(control);
+                    control.Dispose();
+                }
+            }
+
+            string[] buttonNames = rtbButtons.Text.Split(new[] { "</n>" }, StringSplitOptions.RemoveEmptyEntries); ///This is now working correctly
+
             int radius = 100;
             int centerX = btnCore.Location.X + btnCore.Width / 2;
             int centerY = btnCore.Location.Y + btnCore.Height / 2;
-            int angle = Controls.OfType<Button>().Count() * 360 / (Controls.OfType<Button>().Count() + 1);
-            double radian = angle * Math.PI / 180;
-            int x = (int)(centerX + radius * Math.Cos(radian)) - 37;
-            int y = (int)(centerY + radius * Math.Sin(radian)) - 12;
+            double angleIncrement = 360.0 / buttonNames.Length;
+            double angle = 0;
+
+            foreach (string buttonName in buttonNames)
+            {
+                Button newButton = new Button();
+                newButton.Text = buttonName;
+                newButton.Size = new Size(75, 23);
+                newButton.Location = GetButtonLocation(centerX, centerY, radius, angle);
+                Controls.Add(newButton);
+
+                DrawLine(centerX, centerY, newButton.Location.X + newButton.Width / 2, newButton.Location.Y + newButton.Height / 2);
+
+                angle += angleIncrement;
+            }
+        }
+        private Point GetButtonLocation(int centerX, int centerY, int radius, double angleDegrees)
+        {
+            double angleRadians = angleDegrees * Math.PI / 180;
+            int x = (int)(centerX + radius * Math.Cos(angleRadians)) - 37;
+            int y = (int)(centerY + radius * Math.Sin(angleRadians)) - 12;
             return new Point(x, y);
         }
-        private void DrawLine(int x1, int y1, int x2, int y2) //This is fairly self explanatory and works well. It doesn't use .Add but I assume that's because it uses Graphics.
+
+        private void DrawLine(int x1, int y1, int x2, int y2)
         {
             Graphics g = CreateGraphics();
             Pen pen = new Pen(Color.Black);
