@@ -1,16 +1,17 @@
 private void btnGenerate_Click(object sender, EventArgs e)
         {
-            Button newButton = new Button();
-            newButton.Text = txtName.Text;
+            Button newButton = new Button(); ///Create the new button and assigns it to a variable called newButton
+            newButton.Text = txtName.Text; ///Give it the text of the name but not a name, it will just be btn4 or something in the background. Not ideal.
             newButton.Size = new Size(75, 23);
             newButton.Location = GetNextButtonLocation();
-            Controls.Add(newButton);
+            Controls.Add(newButton); ///This actually puts it on the form, more specifically it adds it to something called the Controls collection.
 
             DrawLine(btnCore.Location.X + btnCore.Width / 2, btnCore.Location.Y + btnCore.Height / 2,
                 newButton.Location.X + newButton.Width / 2, newButton.Location.Y + newButton.Height / 2);
         }
-        private Point GetNextButtonLocation()
-        {
+        private Point GetNextButtonLocation() ///It would take me a long time to understand why this isn't working properly, as I don't understand how it works.
+            ///It's  meant to generate evenly spaced buttons around btnCore but the gaps between them get smaller each time.
+       
             int radius = 100;
             int centerX = btnCore.Location.X + btnCore.Width / 2;
             int centerY = btnCore.Location.Y + btnCore.Height / 2;
@@ -20,7 +21,7 @@ private void btnGenerate_Click(object sender, EventArgs e)
             int y = (int)(centerY + radius * Math.Sin(radian)) - 12;
             return new Point(x, y);
         }
-        private void DrawLine(int x1, int y1, int x2, int y2)
+        private void DrawLine(int x1, int y1, int x2, int y2) //This is fairly self explanatory and works well. It doesn't use .Add but I assume that's because it uses Graphics.
         {
             Graphics g = CreateGraphics();
             Pen pen = new Pen(Color.Black);
