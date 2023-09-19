@@ -1,40 +1,71 @@
-private void btnGenerate_Click(object sender, EventArgs e)
+namespace Core ///All code will go in this one form.
+{
+    public partial class FileExplorer : Form
+    {
+        public FileExplorer()
         {
-            string buttonName = txtName.Text;
-            rtbButtons.AppendText(buttonName + Environment.NewLine);
-            RefreshButtons();
+            InitializeComponent();
         }
-        private void RefreshButtons()
+
+        List<Button> newButtons = new List<Button>(); ///Always contains a list of active buttons
+        private void btnCore_Click(object sender, EventArgs e) ///This will need to change from reading a text file to reading the contents of a folder.
         {
+            string filePath = "C:\\Users\\Alexa\\source\\repos\\Noto\\buttonNames.txt";
+            using (StreamWriter writer = File.AppendText(filePath))
+         ///       if (buttonName != "")
+         ///       {     Code for adding more text, currently commented out.
+         ///          writer.WriteLine(buttonName);
+         ///       }
+            Invalidate();
+            RefreshButtons(filePath);
+        }
+        private void RefreshButtons(string filePath)   ///This code should be fine now, only where it gets buttons from and where they lead will need to change.
+        {
+            List<Button> buttonsToRemove = new List<Button>();
+
             foreach (Control control in Controls)
             {
-                if (control is Button && control.Name != "btnCore") ///This is deleting btnGenerate, try && control.Name != "btnGenerate" later
+                if (control is Button button && button.Name != "btnCore")
                 {
-                    Controls.Remove(control);
-                    control.Dispose();
+                    buttonsToRemove.Add(button);
                 }
             }
 
-            string[] buttonNames = rtbButtons.Text.Split(new[] { "</n>" }, StringSplitOptions.RemoveEmptyEntries); ///This is now working correctly
+            foreach (Button button in buttonsToRemove)
+            {
+                Controls.Remove(button);
+                button.Dispose();
+                newButtons.Clear();
+            }
 
+            string[] buttonNames = File.ReadAllLines(filePath); ///This is now working correctly
+                                                                /// Following code removed from above: rtbButtons.Text.Split(new[] { "</n>" }, StringSplitOptions.RemoveEmptyEntries); 
+                                                                /// More complex string parsing will be required
             int radius = 100;
             int centerX = btnCore.Location.X + btnCore.Width / 2;
             int centerY = btnCore.Location.Y + btnCore.Height / 2;
             double angleIncrement = 360.0 / buttonNames.Length;
             double angle = 0;
 
-            foreach (string buttonName in buttonNames)
+            foreach (string buttonName in buttonNames)  
             {
                 Button newButton = new Button();
                 newButton.Text = buttonName;
-                newButton.Size = new Size(75, 23);
+                newButton.Size = new Size(100, 46);
                 newButton.Location = GetButtonLocation(centerX, centerY, radius, angle);
+                newButton.Click += new EventHandler(newButtonClick);
                 Controls.Add(newButton);
 
                 DrawLine(centerX, centerY, newButton.Location.X + newButton.Width / 2, newButton.Location.Y + newButton.Height / 2);
 
                 angle += angleIncrement;
             }
+        }
+
+        private void newButtonClick(object? sender, EventArgs e) ///This works now, and can correctly handle dynamic events.
+        {
+            Button button = (Button)sender!;
+            MessageBox.Show("Button clicked: " + button.Text);
         }
         private Point GetButtonLocation(int centerX, int centerY, int radius, double angleDegrees)
         {
@@ -46,8 +77,11 @@ private void btnGenerate_Click(object sender, EventArgs e)
 
         private void DrawLine(int x1, int y1, int x2, int y2)
         {
+
             Graphics g = CreateGraphics();
             Pen pen = new Pen(Color.Black);
             g.DrawLine(pen, x1, y1, x2, y2);
             g.Dispose();
         }
+    }
+}
